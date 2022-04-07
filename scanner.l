@@ -17,7 +17,7 @@ EXP     [Ee][-+]?[0-9]+
 ":" printf("Is: %s\n", yytext);
 "," printf("Next: %s\n", yytext);
 
-[ \t\n]+          /* eat up whitespace */
+[ \t\r\n]+          /* eat up whitespace */
 
 .           printf( "Unrecognized character: %s\n", yytext );
 
