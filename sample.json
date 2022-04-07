@@ -20,6 +20,9 @@
           "onclick": "CloseDoc()"
         }
       ]
-    }
+    },
+    "float number": 345.123,
+    "exp number pos": 7.823E5,
+    "exp number neg": 1.2e-4
   }
 }

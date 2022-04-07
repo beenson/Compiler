@@ -3,6 +3,7 @@
 
 TEXT    \"(\\\"|[^"])*\"
 DIGIT   [0-9]
+EXP [Ee][-+]?[0-9]+
 
 %%
 
@@ -11,7 +12,7 @@ DIGIT   [0-9]
 "[" printf("Start Array: %s\n", yytext);
 "]" printf("End Array: %s\n", yytext);
 {TEXT} printf("Get Text: %s\n", yytext);
-{DIGIT}* printf("Get Number: %s\n", yytext);
+{DIGIT}+\.?{DIGIT}*{EXP}? printf("Get Number: %s\n", yytext);
 (true|false) printf("Get Boolean: %s\n", yytext);
 ":" printf("Is: %s\n", yytext);
 "," printf("Next: %s\n", yytext);
