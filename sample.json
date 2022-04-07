@@ -24,6 +24,7 @@
     "neg number": -123,
     "float number": 345.123,
     "exp number pos": 7.823E5,
-    "exp number neg": 1.2e-4
+    "exp number neg": 1.2e-4,
+    "null object": null
   }
 }

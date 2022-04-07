@@ -11,6 +11,7 @@ EXP     [Ee][-+]?[0-9]+
 "}" printf("Object End: %s\n", yytext);
 "[" printf("Array Start: %s\n", yytext);
 "]" printf("Array End: %s\n", yytext);
+"null" printf("Null Object: %s\n", yytext);
 {TEXT} printf("Get Text: %s\n", yytext);
 [+-]?{DIGIT}+\.?{DIGIT}*{EXP}? printf("Get Number: %s\n", yytext);
 (true|false) printf("Get Boolean: %s\n", yytext);
