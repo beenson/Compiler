@@ -8,7 +8,7 @@
 
 ## 執行
 輸入`make`指令，使用makefile將程式進行編譯  
-輸入檔案進行文法判斷：`.\scanner .\samples\sample1.json`  
+輸入檔案進行文法判斷：`.\parser .\samples\sample1.json`  
 hint:在samples資料夾中有4個範例檔案
 
 ## JSON格式簡介
