@@ -1,11 +1,14 @@
 %{
-
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 void yyerror(char *);
 int yylex(void);
 extern FILE *yyin;
-extern int linenum;
+extern int linenum; //行數
+FILE *out; //輸出檔案
+char *temp; //暫存label的名字
+int step = 0; //階層（用來輸出tab）
 %}
 
 %token TEXT
@@ -22,64 +25,58 @@ extern int linenum;
 %token END
 %%
 
-
-
 s 
-: obj END 
+: {printf("<root>"); step++;} obj {printf("</root>\n");} END 
 {printf("Syntax correct!!\n"); fclose(yyin); return 0;}
 ;
 
 obj
-: OPENBRACES pairlist CLOSEBRACES
-//{printf("rule 2\n");}
+: {printf("\n");} OPENBRACES pairlist CLOSEBRACES
 ;
 
 pairlist 
 : pair CMM pairlist 
-//{printf("rule 3\n");}
 | pair
-//{printf("rule 4\n");}
 ;
 
 pair
-: key COLON value
-//{printf("rule 5\n");}
+: key NIL
+{ PrintTab(step); printf("<%s />\n", $1);} 
+| key {PrintTab(step); printf("<%s>", $1);} value
+{printf("</%s>\n", $1);} 
+| key {PrintTab(step); printf("<%s>", $1); temp = strdup($1);} OPSB valuelist CLSB
+{printf("</%s>\n", $1);} 
 ;
 
 key
-: TEXT
-//{printf("rule 6\n");}
+: TEXT {$$ = yylval;} COLON
 ;
 
 value
-: obj
-//{printf("rule 7\n");}
-| array
-//{printf("rule 8\n");}
+:{step++;} obj {step--; PrintTab(step);}
 | TEXT
-//{printf("rule 9\n");}
+{printf("%s", $1);}
 | NIL
-//{printf("rule 10\n");}
+{printf("%s", $1);}
 | NUMBER
-//{printf("rule 11\n");}
+{printf("%s", $1);}
 | BOOLEAN
-//{printf("rule 12\n");}
-;
-
-array 
-: OPSB valuelist CLSB
-//{printf("rule 13\n");}
+{printf("%s", $1);}
 ;
 
 valuelist 
-: value CMM valuelist
-//{printf("rule 14\n");}
+: value CMM {printf("</%s>\n", temp); PrintTab(step); printf("<%s>", temp);}  valuelist
 | value
-//{printf("rule 15\n");}
 ;
 
 
 %%
+//輸出tab
+void PrintTab(int times){
+    for (int i = 0; i < times; i++) {
+        printf("\t");
+    }
+}
 
 void yyerror(char* s){
 	fprintf(stderr, "error: %s\n", s);
@@ -91,13 +88,15 @@ int yywrap(){
 	return 1;
 }
 
-int main(int argc, char* argv[])
-
-{
-    if ( argc == 2 )
-            yyin = fopen( argv[1], "r" );
-    yyparse();
-
-    return 0;
+int main(int argc, char* argv[]){
+	if ( argc == 2 )
+	        yyin = fopen(argv[1], "r");
+	argv[1][strlen(argv[1]) - 4] = 'x';
+	argv[1][strlen(argv[1]) - 3] = 'm';
+	argv[1][strlen(argv[1]) - 2] = 'l';
+	argv[1][strlen(argv[1]) - 1] = '\0';
+	out = fopen(argv[1], "w");
+	yyparse();
+	return 0;
 
 }
