@@ -394,7 +394,7 @@ valuelist
 	struct node *children[3];	
 	for (int i = 0; i < 3; i++){
 		children[i] = pop();
-			//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
+		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
 	SetChildren(valueList, children, 3);
 	push(valueList);
@@ -439,12 +439,11 @@ void LevelOrder(struct node *root){
 		struct node *current = dequeue();      // 取出先進入queue的node
 		if(current->children[0] != NULL)        
 			printf("%s -> ", current->name);   // 進行visiting
-			for (int i = 3; i >= 0; i--) {
-				if (current->children[i] != NULL){    // 若leftchild有資料, 將其推進queue
-					printf("%s ", current->children[i]->name);		
-					enqueue(current->children[i]);
-				}
-			
+		for (int i = 3; i >= 0; i--) {
+			if (current->children[i] != NULL){    // 若leftchild有資料, 將其推進queue
+				printf("%s ", current->children[i]->name);		
+				enqueue(current->children[i]);
+			}	
 		}
 		if(current->children[0] != NULL)        
 			printf("\n");
