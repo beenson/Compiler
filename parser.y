@@ -3,7 +3,6 @@
 	#include <stdio.h>
 	#include <string.h>
 	#include <stdbool.h>
-	#include <assert.h>
 	#define MAXSTACK 1000 /*定義最大堆疊容量*/
 	#define MAXQUEUE 1000 /*定義最大堆疊容量*/
 	char *arrStack[MAXSTACK]; //暫存array的名字
