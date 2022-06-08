@@ -49,15 +49,17 @@
 			count++;
 		}
 	}
-
+	
+	//回傳queue是否為空
 	bool IsQueueEmpty(){
 		return size <= 0;
 	}
 
+	//將node放進queue的尾巴
 	void enqueue(struct node *node){
 		if(tail>=MAXSTACK){
-			printf("queue已滿,無法再加入\n");	
-			yyerror("Full queue!!");
+			printf("queue已滿，無法再加入\n");	
+			yyerror("Queue is full!!");
 		}else{
 			size++;
 			queue[tail] = node;
@@ -65,18 +67,21 @@
 		}
 
 	}
+	
+	//將queue裡面的最後一個node拿出來
 	struct node * dequeue(){
 		struct node * data;
 		if(IsQueueEmpty()){
 			printf("queue已空\n");
-			yyerror("Empty queue!!");
+			yyerror("Queue is empty!!");
 		}
 		data = queue[head];
 		size--;
 		head++;
 		return data; 
 	}
-	/*判斷是否為空堆疊*/
+	
+	//判斷是否為空堆疊
 	int isEmpty(){
 		if(top==-1){
 			return 1; 
@@ -85,29 +90,32 @@
 			return 0;
 		}
 	} 
-	/*將指定的資料存入堆疊*/
+	
+	//將指定的資料存入堆疊
 	void push(struct node *node){
 		if(top>=MAXSTACK){
 			printf("堆疊已滿,無法再加入\n");	
-			yyerror("Full stack!!");
+			yyerror("Stack is full!!");
 		}else{
 			top++;
 			stack[top]=node;
 		}
 	} 
-	/*從堆疊取出資料*/
+	
+	//從堆疊取出資料
 	struct node * pop(){
 		struct node * data;
 		if (isEmpty()){
 			printf("堆疊已空\n");
-			yyerror("Empty stack!!");
+			yyerror("Stack is full!!");
 		}
 		data=stack[top];
 		top--;
 		return data; 
 		
 	}
-	/*從堆疊print資料*/
+	
+	//從堆疊print資料
 	void printStack(){
 		struct node * data;
 		if (isEmpty()){
@@ -145,15 +153,14 @@ s
 	fprintf(myStream, "</root>\n");
 } END 
 {
-	
-	struct node *eof = CreateNode(nodeQuantity, "EOF");	
-	push(eof);
-	struct node *start= CreateNode(nodeQuantity, "START");
+	struct node *eof = CreateNode(nodeQuantity, "EOF");	//建立EOF的node
+	push(eof); //推進堆疊
+	struct node *start= CreateNode(nodeQuantity, "START"); //建立START的node
 	struct node *children[2];
 	for (int i = 0; i < 2; i++)
-		children[i] = pop();
-	SetChildren(start, children, 2);
-	push(start);
+		children[i] = pop(); //將children拿出來
+	SetChildren(start, children, 2); //設定START的children
+	push(start); //將start推進去
 	printf("Syntax correct!!\n"); fclose(yyin); 
 	printf("Total node = %d\n", nodeQuantity);
 	//PrintNode();
@@ -188,7 +195,7 @@ obj
 	struct node *obj = CreateNode(nodeQuantity, "OBJECT");
 	for (int i = 0; i < 3; i++){
 		children[i] = pop();
-			//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
+		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
 	SetChildren(obj, children, 3);
 	push(obj);
@@ -211,7 +218,7 @@ pairlist
 	struct node *children[3];	
 	for (int i = 0; i < 3; i++){
 		children[i] = pop();
-			//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
+		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
 	SetChildren(pairList, children, 3);
 	push(pairList);
