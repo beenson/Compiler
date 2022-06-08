@@ -434,7 +434,6 @@ void LevelOrder(struct node *root){
 	enqueue(root);                     // 把root作為level-order traversal之起點, 推進queue中
 	printf("Parser tree:\n");
 	int level[100];
-	int queueStep = 0;
 	while (!IsQueueEmpty()){                     // 若queue不是空的, 表示還有node沒有visiting
 		struct node *current = dequeue();      // 取出先進入queue的node
 		if(current->children[0] != NULL)        
