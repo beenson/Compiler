@@ -162,8 +162,11 @@ s
 	printf("Syntax correct!!\n"); //成功reduce到Start->語法正確
 	fclose(yyin); //關檔
 	printf("Total node = %d\n", nodeQuantity);
-	//PrintNode();
-	LevelOrder(pop()); //印出parser tree
+	struct node * root = pop();
+	printf("==================DFS==================\n");
+	PrintNode(root);
+	printf("==================BFS==================\n");
+	LevelOrder(root); //印出parser tree
 	return 0;
 }
 ;
