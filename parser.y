@@ -19,16 +19,18 @@
 	extern FILE *yyin;
 	extern int linenum; //行數
 	FILE *out; //輸出檔案
-	FILE* myStream;
+	FILE *myStream;
 	int step = 0; //階層（用來輸出tab）
 	int nodeQuantity = 0; //
-
+	
+	//用來存放每個token的資訊，用以建構parser tree
 	typedef struct node{
-		int id;
-		char name[15];
-		struct node *children[4];
+		int id; //第幾個生成
+		char name[15]; //內容
+		struct node *children[4]; //子節點
 	}node;
 	
+	//Create節點，需傳入id與name
 	struct node* CreateNode(int id, char name[15]){
 		struct node *n = malloc(sizeof(struct node));
 		n->id = id + 1;
@@ -38,6 +40,7 @@
 		return n;
 	}
 	
+	//設定某個node的children
 	void SetChildren(struct node* node, struct node* children[4], int quantity){
 		int count = 0;
 		for (int i = 0; i < quantity; i++) {
@@ -153,7 +156,7 @@ s
 	push(start);
 	printf("Syntax correct!!\n"); fclose(yyin); 
 	printf("Total node = %d\n", nodeQuantity);
-	//printStack();
+	//PrintNode();
 	LevelOrder(pop());
 	return 0;
 }
@@ -341,7 +344,7 @@ obj
 	children[0] = pop();
 	SetChildren(value, children, 1);
 	push(value);
-	fprintf(myStream, "%s", $1);
+	fprintf(myStream, "%s", "null");
 }
 | NUMBER
 {
@@ -419,14 +422,14 @@ void PrintTab(int times){
 }
 
 void PrintNode(struct node *current){
-	if(current == NULL)
+	if(current == NULL || current->children[0] == NULL)
 		return;
-	printf("current -> %d %s\n", current->id, current->name);
-	for (int i = 0; i < 4; i++)
+	printf("%s ->", current->name);
+	for (int i = 3; i >= 0; i--)
 		if(current->children[i] != NULL)
-			printf("child -> %s ", current->children[i]->name);
+			printf(" %s", current->children[i]->name);
 	printf("\n");
-	for (int i = 0; i < 4; i++)
+	for (int i = 3; i >= 0; i--)
 		PrintNode(current->children[i]);
 }
 
@@ -439,7 +442,7 @@ void LevelOrder(struct node *root){
 		if(current->children[0] != NULL)        
 			printf("%s -> ", current->name);   // 進行visiting
 		for (int i = 3; i >= 0; i--) {
-			if (current->children[i] != NULL){    // 若leftchild有資料, 將其推進queue
+			if (current->children[i] != NULL){    // 若child有資料, 將其推進queue
 				printf("%s ", current->children[i]->name);		
 				enqueue(current->children[i]);
 			}	
