@@ -147,24 +147,24 @@
 s 
 : 
 {
-	fprintf(myStream, "<root>"); step++; 
-} obj 
+	fprintf(myStream, "<root>");
+	step++; //多一次縮排
+} obj END 
 {
-	fprintf(myStream, "</root>\n");
-} END 
-{
-	struct node *eof = CreateNode(nodeQuantity, "EOF");	//建立EOF的node
+	struct node *eof = CreateNode(nodeQuantity, "EOF");	//建立node（EOF）
 	push(eof); //推進堆疊
-	struct node *start= CreateNode(nodeQuantity, "START"); //建立START的node
+	struct node *start= CreateNode(nodeQuantity, "START"); //建立node（START）
 	struct node *children[2];
 	for (int i = 0; i < 2; i++)
-		children[i] = pop(); //將children拿出來
-	SetChildren(start, children, 2); //設定START的children
+		children[i] = pop(); //將堆疊中最後兩個node（obj與END）拿出來
+	SetChildren(start, children, 2); //設定children（START）
 	push(start); //將start推進去
-	printf("Syntax correct!!\n"); fclose(yyin); 
+	fprintf(myStream, "</root>\n");
+	printf("Syntax correct!!\n"); //成功reduce到Start->語法正確
+	fclose(yyin); //關檔
 	printf("Total node = %d\n", nodeQuantity);
 	//PrintNode();
-	LevelOrder(pop());
+	LevelOrder(pop()); //印出parser tree
 	return 0;
 }
 ;
@@ -172,114 +172,124 @@ s
 obj
 : 
 {
-	fprintf(myStream, "\n"); 
+	fprintf(myStream, "\n");
 	//printStack();
 } OPENBRACES 
 { 
-	struct node *opbs = CreateNode(nodeQuantity, "{"); 
-	push(opbs); 
+	struct node *opbs = CreateNode(nodeQuantity, "{"); //建立node（{）
+	push(opbs); //推進堆疊
 	struct node *children[1];
-	children[0] = pop();
-	struct node *openbraces = CreateNode(nodeQuantity, "OPENBRACES");
-	SetChildren(openbraces, children, 1);
-	push(openbraces);
+	children[0] = pop(); //將堆疊裡的最後一個node（{）拿出來
+	struct node *openbraces = CreateNode(nodeQuantity, "OPENBRACES"); //建立node（OPENBRACES）
+	SetChildren(openbraces, children, 1); //設定OPENBRACES的child
+	push(openbraces); //推進堆疊
 } pairlist CLOSEBRACES 
 {
-	struct node *clbs = CreateNode(nodeQuantity, "}"); 
-	push(clbs); 
+	struct node *clbs = CreateNode(nodeQuantity, "}");  //建立node（}）
+	push(clbs); //推進堆疊
 	struct node *children[3];
-	children[0] = pop();
-	struct node *closebraces = CreateNode(nodeQuantity, "CLOSEBRACES");
-	SetChildren(closebraces, children, 1);
-	push(closebraces);
-	struct node *obj = CreateNode(nodeQuantity, "OBJECT");
+	children[0] = pop(); //將堆疊裡的最後一個node（}）拿出來
+	struct node *closebraces = CreateNode(nodeQuantity, "CLOSEBRACES"); //建立node（CLOSEBRACES）
+	SetChildren(closebraces, children, 1); //設定CLOSEBRACES的child
+	push(closebraces); //推進堆疊
+	struct node *obj = CreateNode(nodeQuantity, "OBJECT"); //建立node（OBJECT）
 	for (int i = 0; i < 3; i++){
-		children[i] = pop();
+		children[i] = pop(); //將堆疊裡最後三個node（依序為：CLOSEBRACES、PAIR_LIST、OPENBRACES）拿出來
 		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
-	SetChildren(obj, children, 3);
-	push(obj);
+	SetChildren(obj, children, 3); //設定OBJECT的children
+	push(obj); //推進堆疊
 }
 ;
 
 pairlist 
 : pair CMM 
 {
-	struct node *c= CreateNode(nodeQuantity, ","); 
-	push(c); 	
-	struct node *cmm = CreateNode(nodeQuantity, "CMM");
+	struct node *c= CreateNode(nodeQuantity, ","); //建立node（,）
+	push(c); //推進堆疊
+	struct node *cmm = CreateNode(nodeQuantity, "CMM"); //建立node（CMM）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(cmm, children, 1);
-	push(cmm);
+	children[0] = pop(); //取出堆疊裡最後一個元素（,）
+	SetChildren(cmm, children, 1); //設定CMM的child
+	push(cmm); //推進堆疊
 } pairlist 
 {
-	struct node *pairList= CreateNode(nodeQuantity, "PAIR_LIST");
+	struct node *pairList= CreateNode(nodeQuantity, "PAIR_LIST"); //建立node（PAIR_LIST）
 	struct node *children[3];	
 	for (int i = 0; i < 3; i++){
-		children[i] = pop();
+		children[i] = pop(); //取出堆疊裡最後三個元素（依序為：CMM、PAIR、PAIR_LIST）
 		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
-	SetChildren(pairList, children, 3);
-	push(pairList);
+	SetChildren(pairList, children, 3); //設定children
+	push(pairList); //推進堆疊
 }
 | pair
 {
-	struct node *pairList= CreateNode(nodeQuantity, "PAIR_LIST");
+	struct node *pairList= CreateNode(nodeQuantity, "PAIR_LIST"); //建立node（PAIR_LIST）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(pairList, children, 1);
-	push(pairList);
+	children[0] = pop(); //取出堆疊裡最後一個元素（PAIR）
+	SetChildren(pairList, children, 1); //設定child
+	push(pairList); //推進堆疊
 }
 ;
 
 pair
 : key NIL
 { 
-	struct node *t = CreateNode(nodeQuantity, "null"); 
-	push(t);
-	struct node *pair = CreateNode(nodeQuantity, "PAIR");
+	struct node *t = CreateNode(nodeQuantity, "null"); //建立node（null）
+	push(t); //推進堆疊
+	struct node *pair = CreateNode(nodeQuantity, "PAIR"); //建立node（PAIR）
 	struct node *children[2];
 	for (int i = 0; i < 2; i++)
-		children[i] = pop();
-	SetChildren(pair, children, 2);
-	push(pair);
-	PrintTab(step); 
-	fprintf(myStream, "<%s />\n", $1);
+		children[i] = pop(); //取出堆疊裡最後兩個元素（依序為：null、KEY）
+	SetChildren(pair, children, 2); //設定children
+	push(pair); //推進堆疊
+	PrintTab(step); //根據第幾層縮排
+	fprintf(myStream, "<%s />\n", $1); //null在xml表示成<key />
 } 
 | key 
 {
-	PrintTab(step); 
+	PrintTab(step); //根據第幾層縮排
 	fprintf(myStream, "<%s>", $1);
 } value
 {
-	struct node *pair = CreateNode(nodeQuantity, "PAIR");
+	struct node *pair = CreateNode(nodeQuantity, "PAIR"); //建立node（PAIR）
 	struct node *children[2];
 	for (int i = 0; i < 2; i++) {
-		children[i] = pop();
+		children[i] = pop(); //取出堆疊裡最後兩個元素（依序為：VALUE、KEY）
 	}
-	SetChildren(pair, children, 2);
-	push(pair);
+	SetChildren(pair, children, 2); //設定children
+	push(pair); //推進堆疊
 	fprintf(myStream, "</%s>\n", $1);
 } 
 | key 
 {
-	PrintTab(step); 
+	PrintTab(step); //根據第幾層縮排
 	fprintf(myStream, "<%s>", $1); 
-	arrStack[++arrStackTop] = strdup($1);
+	arrStack[++arrStackTop] = strdup($1); //將Key的值放到堆疊
 } OPSB 
 {
 	struct node *opsb = CreateNode(nodeQuantity, "["); 
-	push(opsb); 
+	push(opsb); //推進堆疊
+	struct node *children[1];
+	children[0] = pop(); //將堆疊裡的最後一個node（[）拿出來
+	struct node *openbraces = CreateNode(nodeQuantity, "OPSB"); //建立node（OPSB）
+	SetChildren(openbraces, children, 1); //設定OPENBRACES的child
+	push(openbraces); //推進堆疊
 } valuelist CLSB
 {
-	struct node *clsb = CreateNode(nodeQuantity, "]"); push(clsb); 
-	struct node *pair = CreateNode(nodeQuantity, "PAIR");
+	struct node *clsb = CreateNode(nodeQuantity, "]"); //建立node（]）
+	push(clsb); //推進堆疊 
 	struct node *children[4];
+	children[0] = pop(); //將堆疊裡的最後一個node（]）拿出來
+	struct node *closebraces = CreateNode(nodeQuantity, "CLSB"); //建立node（CLSB）
+	SetChildren(closebraces, children, 1); //設定CLSB的child
+	push(closebraces); //推進堆疊
+	struct node *pair = CreateNode(nodeQuantity, "PAIR"); //建立node（PAIR）
 	for (int i = 0; i < 4; i++)
-		children[i] = pop();
-	SetChildren(pair, children, 4);
-	push(pair);
+		children[i] = pop(); //取出堆疊裡最後四個元素（依序為：CLSB、VALUE_LIST、KEY、OPSB）
+	SetChildren(pair, children, 4); //設定children
+	push(pair); //推進堆疊
 	fprintf(myStream, "</%s>\n", arrStack[arrStackTop--]);
 } 
 ;
@@ -287,100 +297,100 @@ pair
 key
 : TEXT COLON 
 {
-	struct node *t = CreateNode(nodeQuantity, $1); 
-	push(t);
+	struct node *t = CreateNode(nodeQuantity, $1); //根據TEXT的內容建立node（$1）
+	push(t); //推進堆疊
 	struct node *children[2];
-	children[0] = pop();
-	struct node *text = CreateNode(nodeQuantity, "TEXT"); 
-	SetChildren(text, children, 1);
-	push(text);
-	struct node *c = CreateNode(nodeQuantity, ":"); 
-	push(c);
-	children[0] = pop();
-	struct node *colon = CreateNode(nodeQuantity, "COLON"); 
-	SetChildren(colon, children, 1);
-	push(colon);
-	struct node *key = CreateNode(nodeQuantity, "KEY");
+	children[0] = pop(); //將堆疊裡的最後一個node（$1）拿出來
+	struct node *text = CreateNode(nodeQuantity, "TEXT"); //建立node（TEXT） 
+	SetChildren(text, children, 1); //設定child
+	push(text); //推進堆疊
+	struct node *c = CreateNode(nodeQuantity, ":"); //建立node（:）  
+	push(c); //推進堆疊
+	children[0] = pop(); //將堆疊裡的最後一個node（:）拿出來
+	struct node *colon = CreateNode(nodeQuantity, "COLON"); //建立node（COLON）
+	SetChildren(colon, children, 1); //設定child
+	push(colon); //推進堆疊
+	struct node *key = CreateNode(nodeQuantity, "KEY"); //建立node（KEY）
 	for (int i = 0; i < 2; i++)
-		children[i] = pop();
-	SetChildren(key, children, 2);
-	push(key);
+		children[i] = pop(); //將堆疊裡的最後兩個node拿出來（依序為：COLON、TEXT）
+	SetChildren(key, children, 2); //設定children
+	push(key); //推進堆疊
 }
 ;
 
 value
 :
 {
-	step++;
+	step++; //多一次縮排
 } 
 obj 
 {
-	step--; 
-	PrintTab(step); 
+	step--;  //少一次縮排
+	PrintTab(step); //根據step決定縮排幾次
 	struct node *children[1];
-	struct node *value = CreateNode(nodeQuantity, "VALUE");
-	children[0] = pop();
-	SetChildren(value, children, 1);
-	push(value);
+	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（OBJECT）
+	SetChildren(value, children, 1); //設定child
+	push(value); //推進堆疊
 }
 | TEXT
 {
-	struct node *t = CreateNode(nodeQuantity, $1);
-	push(t);
+	struct node *t = CreateNode(nodeQuantity, $1); //根據TEXT的內容建立node（$1）
+	push(t); //推進堆疊
 	struct node *children[1];
-	children[0] = pop();
-	struct node *text = CreateNode(nodeQuantity, "TEXT");
-	SetChildren(text, children, 1);
-	push(text);
-	struct node *value = CreateNode(nodeQuantity, "VALUE");
-	children[0] = pop();
-	SetChildren(value, children, 1);
-	push(value);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（$1）
+	struct node *text = CreateNode(nodeQuantity, "TEXT"); //建立node（TEXT）
+	SetChildren(text, children, 1); //設定child
+	push(text); //推進堆疊
+	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（TEXT）
+	SetChildren(value, children, 1); //設定child
+	push(value); //推進堆疊
 	fprintf(myStream, "%s", $1);
 }
 | NIL
 {
-	struct node *n = CreateNode(nodeQuantity, $1);
-	push(n);
-	struct node *nil = CreateNode(nodeQuantity, "NIL");
+	struct node *n = CreateNode(nodeQuantity, $1); //根據$1內容建立node（$1）
+	push(n); //推進堆疊
+	struct node *nil = CreateNode(nodeQuantity, "NIL"); //建立node（NIL）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(nil, children, 1);
-	push(nil);
-	struct node *value = CreateNode(nodeQuantity, "VALUE");
-	children[0] = pop();
-	SetChildren(value, children, 1);
-	push(value);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（$1）
+	SetChildren(nil, children, 1); //設定child
+	push(nil); //推進堆疊
+	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（NIL）
+	SetChildren(value, children, 1); //設定child
+	push(value); //推進堆疊
 	fprintf(myStream, "%s", "null");
 }
 | NUMBER
 {
-	struct node *n = CreateNode(nodeQuantity, $1);
-	push(n);
-	struct node *number = CreateNode(nodeQuantity, "NUMBER");
+	struct node *n = CreateNode(nodeQuantity, $1); //根據$1內容建立node（$1）
+	push(n); //推進堆疊
+	struct node *number = CreateNode(nodeQuantity, "NUMBER"); //建立node（NUMBER）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(number, children, 1);
-	push(number);
-	struct node *value = CreateNode(nodeQuantity, "VALUE");
-	children[0] = pop();
-	SetChildren(value, children, 1);
-	push(value);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（$1）
+	SetChildren(number, children, 1); //設定child
+	push(number); //推進堆疊
+	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（NUMBER）
+	SetChildren(value, children, 1); //設定child
+	push(value); //推進堆疊
 	fprintf(myStream, "%s", $1);
 }
 | BOOLEAN
 {
-	struct node *b = CreateNode(nodeQuantity, $1);
-	push(b);
-	struct node *boolean = CreateNode(nodeQuantity, "BOOLEAN");
+	struct node *b = CreateNode(nodeQuantity, $1); //根據$1內容建立node（$1）
+	push(b); //推進堆疊
+	struct node *boolean = CreateNode(nodeQuantity, "BOOLEAN"); //建立node（BOOLEAN）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(boolean, children, 1);
-	push(boolean);
-	struct node *value = CreateNode(nodeQuantity, "VALUE");
-	children[0] = pop();
-	SetChildren(value, children, 1);
-	push(value);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（$1）
+	SetChildren(boolean, children, 1); //設定child
+	push(boolean); //推進堆疊
+	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（BOOLEAN）
+	SetChildren(value, children, 1); //設定child
+	push(value); //推進堆疊
 	fprintf(myStream, "%s", $1);
 }
 ;
@@ -389,57 +399,59 @@ valuelist
 : value CMM 
 {
 	fprintf(myStream, "</%s>\n", arrStack[arrStackTop]); 
-	PrintTab(step); 
+	PrintTab(step); //根據step決定縮排幾次
 	fprintf(myStream, "<%s>", arrStack[arrStackTop]); 
-	struct node *c= CreateNode(nodeQuantity, ","); 
-	push(c); 
-	struct node *cmm = CreateNode(nodeQuantity, "CMM");
+	struct node *c= CreateNode(nodeQuantity, ","); //建立node（,）
+	push(c);  //推進堆疊
+	struct node *cmm = CreateNode(nodeQuantity, "CMM"); //建立node（CMM）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(cmm, children, 1);
-	push(cmm);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（,）
+	SetChildren(cmm, children, 1); //設定child
+	push(cmm); //推進堆疊
 } valuelist
 {
-	struct node *valueList= CreateNode(nodeQuantity, "VALUE_LIST");
+	struct node *valueList= CreateNode(nodeQuantity, "VALUE_LIST"); //建立node（VALUE_LIST）
 	struct node *children[3];	
 	for (int i = 0; i < 3; i++){
-		children[i] = pop();
+		children[i] = pop(); //將堆疊裡的最後三個node拿出來（依序為：VALUE_LIST、CMM、VALUE）
 		//printf("children%d = %d, %s\n", i, children[i]->id, children[i]->name);
 	}
-	SetChildren(valueList, children, 3);
-	push(valueList);
+	SetChildren(valueList, children, 3); //設定child
+	push(valueList); //推進堆疊
 }
 | value
 {
-	struct node *valueList= CreateNode(nodeQuantity, "VALUE_LIST");
+	struct node *valueList= CreateNode(nodeQuantity, "VALUE_LIST"); //建立node（VALUE_LIST）
 	struct node *children[1];
-	children[0] = pop();
-	SetChildren(valueList, children, 1);
-	push(valueList);
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（VALUE）
+	SetChildren(valueList, children, 1); //設定child
+	push(valueList); //推進堆疊
 }
 ;
 
 
 %%
-//輸出tab
+//根據times決定輸出幾次tab
 void PrintTab(int times){
 	for (int i = 0; i < times; i++) {
     		fprintf(myStream, "\t");
 	}
 }
 
+//以DFS方式print parser tree
 void PrintNode(struct node *current){
-	if(current == NULL || current->children[0] == NULL)
+	if(current == NULL || current->children[0] == NULL) //如果現在的node為NULL，或沒有child就結束
 		return;
 	printf("%s ->", current->name);
-	for (int i = 3; i >= 0; i--)
-		if(current->children[i] != NULL)
+	for (int i = 3; i >= 0; i--)  //因Stack會反過來，這裡print的時候就得反過來print，結果才會是正確的
+		if(current->children[i] != NULL) //如果child不為NULL就print
 			printf(" %s", current->children[i]->name);
 	printf("\n");
 	for (int i = 3; i >= 0; i--)
 		PrintNode(current->children[i]);
 }
 
+//以BFS方式print parser tree
 void LevelOrder(struct node *root){
 	enqueue(root);                     // 把root作為level-order traversal之起點, 推進queue中
 	printf("Parser tree:\n");
@@ -459,9 +471,9 @@ void LevelOrder(struct node *root){
 	}
 }
 
+//輸出error
 void yyerror(char* s){
-	fprintf(stderr, "error: %s\n", s);
-	printf("%s\nMistake line: %d\n", s, linenum);
+	printf("%s\nMistake line: %d\n", s, linenum); //print出錯誤內容與哪一行錯誤
 	exit(1);
 }
 
@@ -471,7 +483,7 @@ int yywrap(){
 
 int main(int argc, char* argv[]){
 	if ( argc == 2 )
-		yyin = fopen(argv[1], "r");
+		yyin = fopen(argv[1], "r"); //讀檔
 
 	char* buffer = NULL;
 	size_t bufferSize = 0;
@@ -480,11 +492,12 @@ int main(int argc, char* argv[]){
 	yyparse();
 	
 	fclose(myStream);
+	//將json副檔名改為xml，變成輸出檔案的黨名
 	argv[1][strlen(argv[1]) - 4] = 'x';
 	argv[1][strlen(argv[1]) - 3] = 'm';
 	argv[1][strlen(argv[1]) - 2] = 'l';
 	argv[1][strlen(argv[1]) - 1] = '\0';
-	out = fopen(argv[1], "w");
+	out = fopen(argv[1], "w"); //寫檔
 	fprintf(out, "%s", buffer);
 	fclose(out);
 	free(buffer);
