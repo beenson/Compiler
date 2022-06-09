@@ -129,17 +129,22 @@
 
 %}
 
-%token TEXT
+%union 
+{
+	char *str;
+}
+
+%token <str> TEXT
 %token DIGIT
 %token EXP 
-%token BOOLEAN
+%token <str> BOOLEAN
 %token OPENBRACES CLOSEBRACES
 %token OPSB CLSB
 %token NIL
 %token COLON
 %token CMM
 %token CH
-%token NUMBER
+%token <str> NUMBER
 %token END
 %%
 
@@ -247,12 +252,12 @@ pair
 	SetChildren(pair, children, 2); //設定children
 	push(pair); //推進堆疊
 	PrintTab(step); //根據第幾層縮排
-	fprintf(myStream, "<%s />\n", $1); //null在xml表示成<key />
+	fprintf(myStream, "<%s />\n", arrStack[arrStackTop--]); //null在xml表示成<key />
 } 
 | key 
 {
 	PrintTab(step); //根據第幾層縮排
-	fprintf(myStream, "<%s>", $1);
+	fprintf(myStream, "<%s>", arrStack[arrStackTop]);
 } value
 {
 	struct node *pair = CreateNode(nodeQuantity, "PAIR"); //建立node（PAIR）
@@ -262,13 +267,12 @@ pair
 	}
 	SetChildren(pair, children, 2); //設定children
 	push(pair); //推進堆疊
-	fprintf(myStream, "</%s>\n", $1);
+	fprintf(myStream, "</%s>\n", arrStack[arrStackTop--]);
 } 
 | key 
 {
 	PrintTab(step); //根據第幾層縮排
-	fprintf(myStream, "<%s>", $1); 
-	arrStack[++arrStackTop] = strdup($1); //將Key的值放到堆疊
+	fprintf(myStream, "<%s>", arrStack[arrStackTop]); 
 } OPSB 
 {
 	struct node *opsb = CreateNode(nodeQuantity, "["); 
@@ -317,6 +321,7 @@ key
 		children[i] = pop(); //將堆疊裡的最後兩個node拿出來（依序為：COLON、TEXT）
 	SetChildren(key, children, 2); //設定children
 	push(key); //推進堆疊
+	arrStack[++arrStackTop] = strdup($1); //將Key的值放到堆疊
 }
 ;
 
@@ -352,11 +357,11 @@ obj
 }
 | NIL
 {
-	struct node *n = CreateNode(nodeQuantity, $1); //根據$1內容建立node（$1）
+	struct node *n = CreateNode(nodeQuantity, "null"); //根據$1內容建立node（null）
 	push(n); //推進堆疊
 	struct node *nil = CreateNode(nodeQuantity, "NIL"); //建立node（NIL）
 	struct node *children[1];
-	children[0] = pop(); //將堆疊裡的最後一個node拿出來（$1）
+	children[0] = pop(); //將堆疊裡的最後一個node拿出來（null）
 	SetChildren(nil, children, 1); //設定child
 	push(nil); //推進堆疊
 	struct node *value = CreateNode(nodeQuantity, "VALUE"); //建立node（VALUE）
