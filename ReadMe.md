@@ -8,7 +8,7 @@
 ## 執行
 環境需要安裝`flex`及`bison`  
 使用`make`指令將程式進行編譯  
-輸入檔案進行文法判斷：`.\parser .\samples\sample1.json`  
+輸入檔案進行文法判斷：`.\converter .\samples\sample1.json`  
 hint:
 - 在samples資料夾中有4個範例檔案(3 & 4為錯誤範例)  
 - 成功轉換會在json檔案旁 新增/寫入 xml檔案，失敗則不會更動檔案
