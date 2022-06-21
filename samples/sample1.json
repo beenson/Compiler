@@ -1,30 +1,17 @@
 {
-  "menu": {
-    "id": "file",
-    "value": "File",
-    "popup": {
-      "menuitem": [
-        {
-          "test": "\"Test\"",
-          "value": "New",
-          "onclick": "CreateNewDoc()"
-        },
-        {
-          "number": 345,
-          "value": "Open",
-          "onclick": "OpenDoc()"
-        },
-        {
-          "bool": false,
-          "value": "Close",
-          "onclick": "CloseDoc()"
-        }
-      ]
+  "array1" : [
+    1,
+    2,
+    {
+      "array2": [
+        123,
+        456,
+        789,
+	null
+      ],
+      "test":"text"
     },
-    "neg number": -123,
-    "float number": 345.123,
-    "exp number pos": 7.823E5,
-    "exp number neg": 1.2e-4,
-    "null object": null
-  }
+    3,
+    4
+  ]
 }

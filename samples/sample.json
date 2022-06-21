@@ -1,0 +1,30 @@
+{
+  "menu": {
+    "id": "file",
+    "value": "File",
+    "popup": {
+      "menuitem": [
+        {
+          "test": "\"Test\"",
+          "value": "New",
+          "onclick": "CreateNewDoc()"
+        },
+        {
+          "number": 345,
+          "value": "Open",
+          "onclick": "OpenDoc()"
+        },
+        {
+          "bool": false,
+          "value": "Close",
+          "onclick": "CloseDoc()"
+        }
+      ]
+    },
+    "neg_number": -123,
+    "float_number": 345.123,
+    "exp_number_pos": 7.823E5,
+    "exp_number_neg": 1.2e-4,
+    "null_object": null
+  }
+}
